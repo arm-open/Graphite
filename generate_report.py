@@ -1,24 +1,151 @@
-#Import the rest here later
-import click
+"""A simple example of how to access the Google Analytics API."""
+
+import argparse
+
 from apiclient.discovery import build
+from oauth2client.service_account import ServiceAccountCredentials
+
+import httplib2
+from oauth2client import client
+from oauth2client import file
+from oauth2client import tools
 
 
-#Global Variables to account for email and password
-pdfToOpen = ''
-aKey = ''
-#API Service
+def get_service(api_name, api_version, scope, key_file_location,
+                service_account_email):
+  """Get a service that communicates to a Google API.
 
-#Instantiate a click command
-@click.command()
-@click.argument('pdfname')
-@click.argument('apikey')
-def importArgs(pdfname, apikey):
-    global pdfToOpen
-    pdfToOpen = pdfToOpen
-    global akey
-    aKey = apikey
-    analytics_service = build('analytics', 'v3', developerKey = aKey)
+  Args:
+    api_name: The name of the api to connect to.
+    api_version: The api version to connect to.
+    scope: A list auth scopes to authorize for the application.
+    key_file_location: The path to a valid service account p12 key file.
+    service_account_email: The service account email address.
+
+  Returns:
+    A service that is connected to the specified API.
+  """
+
+  credentials = ServiceAccountCredentials.from_p12_keyfile(
+    service_account_email, key_file_location, scopes=scope)
+
+  http = credentials.authorize(httplib2.Http())
+
+  # Build the service object.
+  service = build(api_name, api_version, http=http)
+
+  return service
+
+
+def get_first_profile_id(service):
+  # Use the Analytics service object to get the first profile id.
+
+  # Get a list of all Google Analytics accounts for this user
+  accounts = service.management().accounts().list().execute()
+
+  if accounts.get('items'):
+    # Get the first Google Analytics account.
+    account = accounts.get('items')[0].get('id')
+
+    # Get a list of all the properties for the first account.
+    properties = service.management().webproperties().list(
+        accountId=account).execute()
+
+    if properties.get('items'):
+      # Get the first property id.
+      property = properties.get('items')[0].get('id')
+
+      # Get a list of all views (profiles) for the first property.
+      profiles = service.management().profiles().list(
+          accountId=account,
+          webPropertyId=property).execute()
+
+      if profiles.get('items'):
+        # return the first view (profile) id.
+        return profiles.get('items')[0].get('id')
+
+  return None
+
+
+def get_results(service, profile_id):
+  # Use the Analytics Service Object to query the Core Reporting API
+  # for the number of sessions within the past seven days.
+  return service.data().ga().get(
+      ids='ga:' + profile_id,
+      start_date='7daysAgo',
+      end_date='today',
+      metrics='ga:sessions').execute()
+
+def get_results14(service, profile_id):
+  # Use the Analytics Service Object to query the Core Reporting API
+  # for the number of sessions within the past seven days.
+  return service.data().ga().get(
+      ids='ga:' + profile_id,
+      start_date='14daysAgo',
+      end_date='today',
+      metrics='ga:sessions').execute()
+
+def get_results21(service, profile_id):
+  # Use the Analytics Service Object to query the Core Reporting API
+  # for the number of sessions within the past seven days.
+  return service.data().ga().get(
+      ids='ga:' + profile_id,
+      start_date='21daysAgo',
+      end_date='today',
+      metrics='ga:sessions').execute()
+
+def get_results28(service, profile_id):
+  # Use the Analytics Service Object to query the Core Reporting API
+  # for the number of sessions within the past seven days.
+  return service.data().ga().get(
+      ids='ga:' + profile_id,
+      start_date='28daysAgo',
+      end_date='today',
+      metrics='ga:sessions').execute()
+
+def get_results35(service, profile_id):
+  # Use the Analytics Service Object to query the Core Reporting API
+  # for the number of sessions within the past seven days.
+  return service.data().ga().get(
+      ids='ga:' + profile_id,
+      start_date='35daysAgo',
+      end_date='today',
+      metrics='ga:sessions').execute()
+
+def print_results(results):
+  # Print data nicely for the user.
+  if results:
+    print 'View (Profile): %s' % results.get('profileInfo').get('profileName')
+    print 'Total Sessions: %s' % results.get('rows')[0][0]
+
+  else:
+    print 'No results found'
+
+
+def main():
+  # Define the auth scopes to request.
+  scope = ['https://www.googleapis.com/auth/analytics.readonly']
+
+  # Use the developer console and replace the values with your
+  # service account email and relative location of your key file.
+  service_account_email = 'analytics-sample@analytics-sample-168315.iam.gserviceaccount.com'
+  key_file_location = 'client_secrets.p12'
+
+  # Authenticate and construct service.
+  service = get_service('analytics', 'v3', scope, key_file_location,
+    service_account_email)
+  profile = get_first_profile_id(service)
+  xid = get_results(service, profile)
+  xid14 = get_results14(service, profile)
+  xid21 = get_results21(service, profile)
+  xid28 = get_results28(service, profile)
+  xid35 = get_results35(service, profile)
+  print int(xid.get('rows')[0][0])
+  print int(xid14.get('rows')[0][0])
+  print int(xid21.get('rows')[0][0])
+  print int(xid28.get('rows')[0][0])
+  print int(xid35.get('rows')[0][0])
+
 
 if __name__ == '__main__':
-    importArgs()
-
+  main()
