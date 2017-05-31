@@ -1,6 +1,14 @@
-"""A simple example of how to access the Google Analytics API."""
+"""
+---------------------------------------------------------------------------------
+Takes user sessions off Google Analytics API and Puts a bar graph into a PDF File
+Uses Python2
+Written by Arian Moslem
+---------------------------------------------------------------------------------
+"""
 
 import argparse
+import os
+import sys
 
 from apiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
@@ -67,50 +75,16 @@ def get_first_profile_id(service):
   return None
 
 
-def get_results(service, profile_id):
+def get_n_results(service, profile_id, n):
   # Use the Analytics Service Object to query the Core Reporting API
   # for the number of sessions within the past seven days.
+  ndate = str(n)+'daysAgo'
   return service.data().ga().get(
       ids='ga:' + profile_id,
-      start_date='7daysAgo',
+      start_date=ndate,
       end_date='today',
       metrics='ga:sessions').execute()
 
-def get_results14(service, profile_id):
-  # Use the Analytics Service Object to query the Core Reporting API
-  # for the number of sessions within the past seven days.
-  return service.data().ga().get(
-      ids='ga:' + profile_id,
-      start_date='14daysAgo',
-      end_date='today',
-      metrics='ga:sessions').execute()
-
-def get_results21(service, profile_id):
-  # Use the Analytics Service Object to query the Core Reporting API
-  # for the number of sessions within the past seven days.
-  return service.data().ga().get(
-      ids='ga:' + profile_id,
-      start_date='21daysAgo',
-      end_date='today',
-      metrics='ga:sessions').execute()
-
-def get_results28(service, profile_id):
-  # Use the Analytics Service Object to query the Core Reporting API
-  # for the number of sessions within the past seven days.
-  return service.data().ga().get(
-      ids='ga:' + profile_id,
-      start_date='28daysAgo',
-      end_date='today',
-      metrics='ga:sessions').execute()
-
-def get_results35(service, profile_id):
-  # Use the Analytics Service Object to query the Core Reporting API
-  # for the number of sessions within the past seven days.
-  return service.data().ga().get(
-      ids='ga:' + profile_id,
-      start_date='35daysAgo',
-      end_date='today',
-      metrics='ga:sessions').execute()
 
 def print_results(results):
   # Print data nicely for the user.
@@ -128,19 +102,29 @@ def main():
 
   # Use the developer console and replace the values with your
   # service account email and relative location of your key file.
-  service_account_email = 'analytics-sample@analytics-sample-168315.iam.gserviceaccount.com'
-  key_file_location = 'client_secrets.p12'
+  if "GOOGLE_SERVICE_EMAIL" in os.environ:
+      service_account_email = os.environ["GOOGLE_SERVICE_EMAIL"]
+  else:
+      print "Please set the environment variable GOOGLE_SERVICE_EMAIL, which is your google api service account email"
+      sys.exit(1)
+
+  if "KEY_FILE_LOCATION" in os.environ:
+      key_file_location = os.environ["KEY_FILE_LOCATION"]
+
+  else:
+      print "Please set the environment variable KEY_FILE_LOCATION, which is the location to your .p12 client secrets file"
+      sys.exit(1)
 
   # Authenticate and construct service.
   service = get_service('analytics', 'v3', scope, key_file_location,
     service_account_email)
   profile = get_first_profile_id(service)
-  xid = get_results(service, profile)
-  xid14 = get_results14(service, profile)
-  xid21 = get_results21(service, profile)
-  xid28 = get_results28(service, profile)
-  xid35 = get_results35(service, profile)
-  print int(xid.get('rows')[0][0])
+  xid7 = get_n_results(service, profile, 7)
+  xid14 = get_n_results(service, profile, 14)
+  xid21 = get_n_results(service, profile, 21)
+  xid28 = get_n_results(service, profile, 28)
+  xid35 = get_n_results(service, profile, 35)
+  print int(xid7.get('rows')[0][0])
   print int(xid14.get('rows')[0][0])
   print int(xid21.get('rows')[0][0])
   print int(xid28.get('rows')[0][0])
