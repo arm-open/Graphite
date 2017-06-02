@@ -20,6 +20,7 @@ from oauth2client import tools
 
 import pygal
 import cairosvg
+import click
 
 
 def get_service(api_name, api_version, scope, key_file_location,
@@ -90,7 +91,9 @@ def get_n_results(service, profile_id, n):
       end_date='today',
       metrics='ga:sessions').execute()
 
-def main():
+@click.command()
+@click.option('--file', default='analytics.pdf', help='PDF File Name')
+def main(file):
   # Define the auth scopes to request.
   scope = ['https://www.googleapis.com/auth/analytics.readonly']
 
@@ -129,7 +132,7 @@ def main():
   bar_chart.add('28 Days', int(xid28.get('rows')[0][0]))
   bar_chart.add('35 Days', int(xid35.get('rows')[0][0]))
   bar_chart.render_to_file('bar_chart_sessions.svg')
-  cairosvg.svg2pdf(url='bar_chart_sessions.svg', write_to='analytics.pdf')
+  cairosvg.svg2pdf(url='bar_chart_sessions.svg', write_to=file)
 
 
 if __name__ == '__main__':
