@@ -1,7 +1,7 @@
 """
 ---------------------------------------------------------------------------------
 Takes user sessions off Google Analytics API and Puts a bar graph into a PDF File
-Uses Python2
+Uses Python3
 Written by Arian Moslem
 ---------------------------------------------------------------------------------
 """
@@ -17,6 +17,9 @@ import httplib2
 from oauth2client import client
 from oauth2client import file
 from oauth2client import tools
+
+import pygal
+import cairosvg
 
 
 def get_service(api_name, api_version, scope, key_file_location,
@@ -87,8 +90,6 @@ def get_n_results(service, profile_id, n):
       end_date='today',
       metrics='ga:sessions').execute()
 
-
-
 def main():
   # Define the auth scopes to request.
   scope = ['https://www.googleapis.com/auth/analytics.readonly']
@@ -112,16 +113,23 @@ def main():
   service = get_service('analytics', 'v3', scope, key_file_location,
     service_account_email)
   profile = get_first_profile_id(service)
+  #xidN => n = # of days, and xid represents the data based off a set number of days(sessions)
   xid7 = get_n_results(service, profile, 7)
   xid14 = get_n_results(service, profile, 14)
   xid21 = get_n_results(service, profile, 21)
   xid28 = get_n_results(service, profile, 28)
   xid35 = get_n_results(service, profile, 35)
-  print(int(xid7.get('rows')[0][0]))
-  print(int(xid14.get('rows')[0][0]))
-  print(int(xid21.get('rows')[0][0]))
   print(int(xid28.get('rows')[0][0]))
-  print(int(xid35.get('rows')[0][0]))
+
+  #Construction of the bar chart
+  bar_chart = pygal.Bar()
+  bar_chart.add('7 Days', int(xid7.get('rows')[0][0]))
+  bar_chart.add('14 Days', int(xid14.get('rows')[0][0]))
+  bar_chart.add('21 Days', int(xid21.get('rows')[0][0]))
+  bar_chart.add('28 Days', int(xid28.get('rows')[0][0]))
+  bar_chart.add('35 Days', int(xid35.get('rows')[0][0]))
+  bar_chart.render_to_file('bar_chart_sessions.svg')
+  cairosvg.svg2pdf(url='bar_chart_sessions.svg', write_to='analytics.pdf')
 
 
 if __name__ == '__main__':
