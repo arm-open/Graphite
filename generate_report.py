@@ -22,20 +22,23 @@ from oauth2client import tools
 def get_service(api_name, api_version, scope, key_file_location,
                 service_account_email):
   """Get a service that communicates to a Google API.
-
   Args:
     api_name: The name of the api to connect to.
     api_version: The api version to connect to.
     scope: A list auth scopes to authorize for the application.
     key_file_location: The path to a valid service account p12 key file.
     service_account_email: The service account email address.
-
   Returns:
     A service that is connected to the specified API.
   """
 
+  f = open(key_file_location, 'rb')
+  key = f.read()  
+  f.close()
+
   credentials = ServiceAccountCredentials.from_p12_keyfile(
-    service_account_email, key_file_location, scopes=scope)
+              service_account_email, key_file_location, scopes=scope)
+
 
   http = credentials.authorize(httplib2.Http())
 
@@ -43,7 +46,6 @@ def get_service(api_name, api_version, scope, key_file_location,
   service = build(api_name, api_version, http=http)
 
   return service
-
 
 def get_first_profile_id(service):
   # Use the Analytics service object to get the first profile id.
@@ -86,15 +88,6 @@ def get_n_results(service, profile_id, n):
       metrics='ga:sessions').execute()
 
 
-def print_results(results):
-  # Print data nicely for the user.
-  if results:
-    print 'View (Profile): %s' % results.get('profileInfo').get('profileName')
-    print 'Total Sessions: %s' % results.get('rows')[0][0]
-
-  else:
-    print 'No results found'
-
 
 def main():
   # Define the auth scopes to request.
@@ -105,14 +98,14 @@ def main():
   if "GOOGLE_SERVICE_EMAIL" in os.environ:
       service_account_email = os.environ["GOOGLE_SERVICE_EMAIL"]
   else:
-      print "Please set the environment variable GOOGLE_SERVICE_EMAIL, which is your google api service account email"
+      print("Please set the environment variable GOOGLE_SERVICE_EMAIL, which is your google api service account email")
       sys.exit(1)
 
   if "KEY_FILE_LOCATION" in os.environ:
       key_file_location = os.environ["KEY_FILE_LOCATION"]
 
   else:
-      print "Please set the environment variable KEY_FILE_LOCATION, which is the location to your .p12 client secrets file"
+      print("Please set the environment variable KEY_FILE_LOCATION, which is the location to your .p12 client secrets file")
       sys.exit(1)
 
   # Authenticate and construct service.
@@ -124,11 +117,11 @@ def main():
   xid21 = get_n_results(service, profile, 21)
   xid28 = get_n_results(service, profile, 28)
   xid35 = get_n_results(service, profile, 35)
-  print int(xid7.get('rows')[0][0])
-  print int(xid14.get('rows')[0][0])
-  print int(xid21.get('rows')[0][0])
-  print int(xid28.get('rows')[0][0])
-  print int(xid35.get('rows')[0][0])
+  print(int(xid7.get('rows')[0][0]))
+  print(int(xid14.get('rows')[0][0]))
+  print(int(xid21.get('rows')[0][0]))
+  print(int(xid28.get('rows')[0][0]))
+  print(int(xid35.get('rows')[0][0]))
 
 
 if __name__ == '__main__':
