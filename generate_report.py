@@ -1,8 +1,7 @@
 """
 ---------------------------------------------------------------------------------
 Takes user sessions off Google Analytics API and Puts a bar graph into a PDF File
-Uses Python3
-Written by Arian Moslem
+Uses Python3 Written by Arian Moslem
 ---------------------------------------------------------------------------------
 """
 
@@ -11,129 +10,178 @@ import os
 import sys
 
 from apiclient.discovery import build
-from oauth2client.service_account import ServiceAccountCredentials
-
 import httplib2
 from oauth2client import client
 from oauth2client import file
 from oauth2client import tools
 
-import pygal
-import cairosvg
+from jinja2 import Environment, FileSystemLoader
+
 import click
 
+#GLOBALS
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
+DISCOVERY_URI = ('https://analyticsreporting.googleapis.com/$discovery/rest')
+CLIENT_SECRETS_PATH = '' # Path to client_secrets.json file.
+VIEW_ID = ''
 
-def get_service(api_name, api_version, scope, key_file_location,
-                service_account_email):
-  """Get a service that communicates to a Google API.
-  Args:
-    api_name: The name of the api to connect to.
-    api_version: The api version to connect to.
-    scope: A list auth scopes to authorize for the application.
-    key_file_location: The path to a valid service account p12 key file.
-    service_account_email: The service account email address.
+def initialize_analyticsreporting():
+  """Initializes the analyticsreporting service object.
+
   Returns:
-    A service that is connected to the specified API.
+    analytics an authorized analyticsreporting service object.
   """
+  # Parse command-line arguments.
+  parser = argparse.ArgumentParser(
+      formatter_class=argparse.RawDescriptionHelpFormatter,
+      parents=[tools.argparser])
+  flags = parser.parse_args([])
 
-  f = open(key_file_location, 'rb')
-  key = f.read()  
-  f.close()
+  # Set up a Flow object to be used if we need to authenticate.
+  flow = client.flow_from_clientsecrets(
+      CLIENT_SECRETS_PATH, scope=SCOPES,
+      message=tools.message_if_missing(CLIENT_SECRETS_PATH))
 
-  credentials = ServiceAccountCredentials.from_p12_keyfile(
-              service_account_email, key_file_location, scopes=scope)
-
-
-  http = credentials.authorize(httplib2.Http())
+  # Prepare credentials, and authorize HTTP object with them.
+  # If the credentials don't exist or are invalid run through the native client
+  # flow. The Storage object will ensure that if successful the good
+  # credentials will get written back to a file.
+  storage = file.Storage('analyticsreporting.dat')
+  credentials = storage.get()
+  if credentials is None or credentials.invalid:
+    credentials = tools.run_flow(flow, storage, flags)
+  http = credentials.authorize(http=httplib2.Http())
 
   # Build the service object.
-  service = build(api_name, api_version, http=http)
+  analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=DISCOVERY_URI)
 
-  return service
+  return analytics
 
-def get_first_profile_id(service):
-  # Use the Analytics service object to get the first profile id.
+def get_report(analytics, days, metric, dimension=''):
+  # Use the Analytics Service Object to query the Analytics Reporting API V4.
+    if(dimension):
+      return analytics.reports().batchGet(
+          body={
+            'reportRequests': [
+            {
+              'viewId': VIEW_ID,
+              'dateRanges': [{'startDate': days + 'daysAgo', 'endDate': 'today'}],
+              'metrics': [{'expression': 'ga:'+metric}],
+              'dimensions': [{'name': 'ga:' + dimension}]
+            }]
+          }
+      ).execute()
 
-  # Get a list of all Google Analytics accounts for this user
-  accounts = service.management().accounts().list().execute()
-
-  if accounts.get('items'):
-    # Get the first Google Analytics account.
-    account = accounts.get('items')[0].get('id')
-
-    # Get a list of all the properties for the first account.
-    properties = service.management().webproperties().list(
-        accountId=account).execute()
-
-    if properties.get('items'):
-      # Get the first property id.
-      property = properties.get('items')[0].get('id')
-
-      # Get a list of all views (profiles) for the first property.
-      profiles = service.management().profiles().list(
-          accountId=account,
-          webPropertyId=property).execute()
-
-      if profiles.get('items'):
-        # return the first view (profile) id.
-        return profiles.get('items')[0].get('id')
-
-  return None
+    else:
+     return analytics.reports().batchGet(
+          body={
+            'reportRequests': [
+            {
+              'viewId': VIEW_ID,
+              'dateRanges': [{'startDate': days + 'daysAgo', 'endDate': 'today'}],
+              'metrics': [{'expression': 'ga:'+metric}]
+            }]
+          }
+      ).execute()
 
 
-def get_n_results(service, profile_id, n):
-  # Use the Analytics Service Object to query the Core Reporting API
-  # for the number of sessions within the past seven days.
-  ndate = str(n)+'daysAgo'
-  return service.data().ga().get(
-      ids='ga:' + profile_id,
-      start_date=ndate,
-      end_date='today',
-      metrics='ga:sessions').execute()
+
+def return_response_dimension(response):
+  """Parses and prints the Analytics Reporting API V4 response
+     Returns a dictionary of all the values"""
+
+  for report in response.get('reports', []):
+    columnHeader = report.get('columnHeader', {})
+    dimensionHeaders = columnHeader.get('dimensions', [])
+    metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
+    rows = report.get('data', {}).get('rows', [])
+
+    returned = []
+    for row in rows:
+      dimensions = row.get('dimensions', [])
+      dateRangeValues = row.get('metrics', [])
+      for i, values in enumerate(dateRangeValues):
+        returned.append(zip(dimensions, values.get('values')))
+
+      '''
+      for header, dimension in zip(dimensionHeaders, dimensions):
+        print(header + ': ' + dimension)
+
+      for i, values in enumerate(dateRangeValues):
+        print('Date range (' + str(i) + ')')
+        for metricHeader, value in zip(metricHeaders, values.get('values')):
+          print(metricHeader.get('name') + ': ' + value)
+      '''
+
+    return returned
+
+def return_response(response):
+  """Parses and prints the Analytics Reporting API V4 response
+     Returns a dictionary of all the values"""
+
+  for report in response.get('reports', []):
+    columnHeader = report.get('columnHeader', {})
+    dimensionHeaders = columnHeader.get('dimensions', [])
+    metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
+    rows = report.get('data', {}).get('rows', [])
+
+    returned = []
+    for row in rows:
+      dimensions = row.get('dimensions', [])
+      dateRangeValues = row.get('metrics', [])
+      for i, values in enumerate(dateRangeValues):
+        returned.append(zip(dimensions, values.get('values')))
+
+      '''
+      for header, dimension in zip(dimensionHeaders, dimensions):
+        print(header + ': ' + dimension)
+
+      for i, values in enumerate(dateRangeValues):
+        print('Date range (' + str(i) + ')')
+        for metricHeader, value in zip(metricHeaders, values.get('values')):
+          print(metricHeader.get('name') + ': ' + value)
+      '''
+
+    return returned
+
 
 @click.command()
 @click.option('--file', default='analytics.pdf', help='PDF File Name')
 def main(file):
-  # Define the auth scopes to request.
-  scope = ['https://www.googleapis.com/auth/analytics.readonly']
+    #ERROR CHECKING & SETTING UP OUR GLOBAL VARIABLES 
+    if "CLIENT_SECRETS_PATH" in os.environ:
+        global CLIENT_SECRETS_PATH
+        CLIENT_SECRETS_PATH = os.environ["CLIENT_SECRETS_PATH"]
+    else:
+        print("Please set the environment variable CLIENT_SECRETS_PATH, which is the path and including the client secrets .json file")
+        sys.exit(1)
 
-  # Use the developer console and replace the values with your
-  # service account email and relative location of your key file.
-  if "GOOGLE_SERVICE_EMAIL" in os.environ:
-      service_account_email = os.environ["GOOGLE_SERVICE_EMAIL"]
-  else:
-      print("Please set the environment variable GOOGLE_SERVICE_EMAIL, which is your google api service account email")
-      sys.exit(1)
+    if "VIEW_ID" in os.environ:
+        global VIEW_ID
+        VIEW_ID = os.environ["VIEW_ID"]
+    else:
+        print("Please set the environment variable VIEW_ID, which is the View ID found in your account explorer. Refer to the github page for more information")
+        sys.exit(1)
 
-  if "KEY_FILE_LOCATION" in os.environ:
-      key_file_location = os.environ["KEY_FILE_LOCATION"]
+    #Our Main Code
+    analytics = initialize_analyticsreporting()
+    response = get_report(analytics, '30', 'sessions', 'country')
+    axes = return_response(response)
+    print(axes)
+    print("\n")
+    print(response)
 
-  else:
-      print("Please set the environment variable KEY_FILE_LOCATION, which is the location to your .p12 client secrets file")
-      sys.exit(1)
 
-  # Authenticate and construct service.
-  service = get_service('analytics', 'v3', scope, key_file_location,
-    service_account_email)
-  profile = get_first_profile_id(service)
-  #xidN => n = # of days, and xid represents the data based off a set number of days(sessions)
-  xid7 = get_n_results(service, profile, 7)
-  xid14 = get_n_results(service, profile, 14)
-  xid21 = get_n_results(service, profile, 21)
-  xid28 = get_n_results(service, profile, 28)
-  xid35 = get_n_results(service, profile, 35)
-  print(int(xid28.get('rows')[0][0]))
-
-  #Construction of the bar chart
-  bar_chart = pygal.Bar()
-  bar_chart.add('7 Days', int(xid7.get('rows')[0][0]))
-  bar_chart.add('14 Days', int(xid14.get('rows')[0][0]))
-  bar_chart.add('21 Days', int(xid21.get('rows')[0][0]))
-  bar_chart.add('28 Days', int(xid28.get('rows')[0][0]))
-  bar_chart.add('35 Days', int(xid35.get('rows')[0][0]))
-  bar_chart.render_to_file('bar_chart_sessions.svg')
-  cairosvg.svg2pdf(url='bar_chart_sessions.svg', write_to=file)
+    '''
+  j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
+  output = j2_env.get_template('render.html').render(
+          xids=[int(xid7.get('rows')[0][0]), int(xid14.get('rows')[0][0]), int(xid21.get('rows')[0][0]), int(xid28.get('rows')[0][0]), int(xid35.get('rows')[0][0])], labels=["7 Days", "14 Days", "21 Days", "28 Days", "35 Days"])
+  F = open("rendered.html", "a")
+  F.write(output)
+  F.close()
+    '''
 
 
 if __name__ == '__main__':
-  main()
+    main()
