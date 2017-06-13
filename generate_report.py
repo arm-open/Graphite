@@ -85,6 +85,33 @@ def get_report(analytics, days, metric, dimension=''):
           }
       ).execute()
 
+def get_report_end(analytics, days, metric, dimension=''):
+  # Use the Analytics Service Object to query the Analytics Reporting API V4.
+    if(dimension):
+      return analytics.reports().batchGet(
+          body={
+            'reportRequests': [
+            {
+              'viewId': VIEW_ID,
+              'dateRanges': [{'startDate': days + 'daysAgo', 'endDate': str(int(days) - 1) + 'daysAgo'}],
+              'metrics': [{'expression': 'ga:'+metric}],
+              'dimensions': [{'name': 'ga:' + dimension}]
+            }]
+          }
+      ).execute()
+
+    else:
+     return analytics.reports().batchGet(
+          body={
+            'reportRequests': [
+            {
+              'viewId': VIEW_ID,
+              'dateRanges': [{'startDate': days + 'daysAgo', 'endDate': str(int(days) - 1) + 'daysAgo'}],
+              'metrics': [{'expression': 'ga:'+metric}]
+            }]
+          }
+      ).execute()
+
 
 
 def return_response_dimension(response):
@@ -102,7 +129,10 @@ def return_response_dimension(response):
       dimensions = row.get('dimensions', [])
       dateRangeValues = row.get('metrics', [])
       for i, values in enumerate(dateRangeValues):
-        returned.append(zip(dimensions, values.get('values')))
+        #returned.append(zip(dimensions, values.get('values')))
+        d = {}
+        d[dimensions[0]] = values.get('values')[0]
+        returned.append(d)
 
       '''
       for header, dimension in zip(dimensionHeaders, dimensions):
@@ -126,24 +156,13 @@ def return_response(response):
     metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
     rows = report.get('data', {}).get('rows', [])
 
-    returned = []
     for row in rows:
       dimensions = row.get('dimensions', [])
       dateRangeValues = row.get('metrics', [])
       for i, values in enumerate(dateRangeValues):
-        returned.append(zip(dimensions, values.get('values')))
+        return values.get('values')
 
-      '''
-      for header, dimension in zip(dimensionHeaders, dimensions):
-        print(header + ': ' + dimension)
-
-      for i, values in enumerate(dateRangeValues):
-        print('Date range (' + str(i) + ')')
-        for metricHeader, value in zip(metricHeaders, values.get('values')):
-          print(metricHeader.get('name') + ': ' + value)
-      '''
-
-    return returned
+    return
 
 
 @click.command()
@@ -164,13 +183,52 @@ def main(file):
         print("Please set the environment variable VIEW_ID, which is the View ID found in your account explorer. Refer to the github page for more information")
         sys.exit(1)
 
-    #Our Main Code
+    """
+    DATA TO BE PASSED INTO THE HTML DOCUMENT
+    INITALIZING OUR ANALYTICS REPORTING
+    """
     analytics = initialize_analyticsreporting()
+    #Total Number of sessions for past 30 days
+    response = get_report(analytics, '30', 'sessions')
+    sessionNum = return_response(response)
+    sessionNum = sessionNum[0]
+    #Total Number of users in the past 30 days
+    response = get_report(analytics, '30', 'users')
+    userNum = return_response(response)
+    userNum = userNum[0]
+    #Total Number of pageviews in the past 30 days
+    response = get_report(analytics, '30', 'pageviews')
+    pageViews = return_response(response)
+    pageViews = pageViews[0]
+    #Bounce rate % in the past 30 days
+    response = get_report(analytics, '30', 'bounceRate')
+    bounceRate = return_response(response)
+    bounceRate = bounceRate[0]
+    #Sessions over past 30 days on per day basis
+    sessionCount = []
+    for i in range(1, 31):
+        response = get_report_end(analytics, str(i), 'sessions')
+        sessionCounter = return_response(response)
+        if not sessionCounter:
+            sessionCount.append(0)
+        else:
+            sessionCounter = sessionCounter[0]
+            sessionCount.append(int(sessionCounter))
+    #Channels that are driving enagement
+    response = get_report(analytics, '30', 'sessions', 'acquisitionTrafficChannel')
+    sessionChannels = return_response_dimension(response)
+    response = get_report(analytics, '30', 'pageviews', 'acquisitionTrafficChannel')
+    pageviewChannels = return_response_dimension(response)
+    #Device Type Distribution in the past 30 days
+    response = get_report(analytics, '30', 'sessions', 'deviceCategory')
+    device_types = return_response_dimension(response)
+    #Average Session Length for past 30 days
+    response = get_report(analytics, '30', 'sessions', 'sessionDurationBucket')
+    session_duration = return_response_dimension(response)
+    #Top Countries by sessions for past 30 days
     response = get_report(analytics, '30', 'sessions', 'country')
-    axes = return_response(response)
-    print(axes)
-    print("\n")
-    print(response)
+    country_per_session = return_response_dimension(response)
+
 
 
     '''
