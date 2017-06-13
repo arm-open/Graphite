@@ -221,24 +221,36 @@ def main(file):
     pageviewChannels = return_response_dimension(response)
     #Device Type Distribution in the past 30 days
     response = get_report(analytics, '30', 'sessions', 'deviceCategory')
-    device_types = return_response_dimension(response)
+    deviceTypes = return_response_dimension(response)
     #Average Session Length for past 30 days
     response = get_report(analytics, '30', 'sessions', 'sessionDurationBucket')
-    session_duration = return_response_dimension(response)
+    sessionDuration = return_response_dimension(response)
     #Top Countries by sessions for past 30 days
     response = get_report(analytics, '30', 'sessions', 'country')
-    country_per_session = return_response_dimension(response)
+    countryPerSession = return_response_dimension(response)
 
-
-
-    '''
-  j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
-  output = j2_env.get_template('render.html').render(
-          xids=[int(xid7.get('rows')[0][0]), int(xid14.get('rows')[0][0]), int(xid21.get('rows')[0][0]), int(xid28.get('rows')[0][0]), int(xid35.get('rows')[0][0])], labels=["7 Days", "14 Days", "21 Days", "28 Days", "35 Days"])
-  F = open("rendered.html", "a")
-  F.write(output)
-  F.close()
-    '''
+    """
+    LOADED UP JINJA ENVIRONMENT, WILL BE PASSING DATA INTO IT 
+    WILL RENDER A rendered.html DOCUMENT WITH ALL THE DATA PASSED INTO IT
+    """
+    j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
+    rendered_output = j2_env.get_template('render.html').render(
+            number_of_sessions = sessionNum
+            , number_of_users = userNum
+            , number_of_pageViews = pageViews
+            , bounce_rate_percentage = bounceRate
+            , daily_sessions = sessionCount
+            , engagement_session_channels = sessionChannels
+            , engagement_pageview_channels = pageviewChannels
+            , device_types = deviceTypes
+            , session_duration = sessionDuration
+            , country_per_session = countryPerSession)
+    #Rendered file which will receive output written to it and then closed up
+    """
+    renderedFile = open("rendered.html", "a")
+    renderedFile.write(rendered_output)
+    renderedFile.close()
+    """
 
 
 if __name__ == '__main__':
