@@ -1,0 +1,65 @@
+<html>
+<head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="http://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="http://www.chartjs.org/dist/2.6.0/Chart.bundle.js"></script>
+</head>
+<body>
+    <canvas id="sessions_line_chart" width="400" height="250"></canvas>
+    <script>
+        var sessionLabels = [];
+        var sessionData = [];
+        var i = 0;
+        {% for sessions in daily_sessions %}
+        if(i != 0 && i % 5 == 0){
+            sessionLabels.push(i.toString());
+        } else {
+            sessionLabels.push("");
+        }
+        sessionData.push({{sessions}});
+        i++;
+        {% endfor %}
+        var data = {
+            labels: sessionLabels,
+            datasets : [{
+                label: "Number of Sessions",
+                data: sessionData,
+                fill: false,
+                borderColor: "rgb(75, 192, 192)",
+                backgroundColor: "rgb(75, 192, 192)"
+            }]
+        };
+        var options = {
+            responsive: false,
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Number of Days'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Value'
+                    }
+                }]
+            },
+            elements: {
+                point: {
+                    radius: 0
+                }
+            }
+        };
+        var config = {
+            type: 'line',
+            data: data,
+            options: options
+        };
+        var ctx = document.getElementById("sessions_line_chart").getContext("2d");
+        var myLineChart = new Chart(ctx, config);
+        </script>
+</body>
