@@ -246,11 +246,9 @@ def main(file):
             , session_duration = sessionDuration
             , country_per_session = countryPerSession)
     #Rendered file which will receive output written to it and then closed up
-    """
     renderedFile = open("rendered.html", "a")
     renderedFile.write(rendered_output)
     renderedFile.close()
-    """
 
 
 if __name__ == '__main__':
