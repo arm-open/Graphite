@@ -166,9 +166,7 @@ def return_response(response):
         for row in rows:
             dimensions = row.get('dimensions', [])
             dateRangeValues = row.get('metrics', [])
-            for i, values in enumerate(dateRangeValues):9",
-  "peekViewEditor.background": "#202232",
-  "peekViewEditor.matchHighlight
+            for i, values in enumerate(dateRangeValues):
                 return values.get('values')
 
         return
