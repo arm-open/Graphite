@@ -262,7 +262,7 @@ def main(file):
     renderedFile.write(rendered_output)
     renderedFile.close()
     #Running phantomjs then exitting
-    phantomout = subprocess.run(["phantomjs --ignore-ssl-errors=true capture.js"])
+    phantomout = subprocess.run(["phantomjs --ignore-ssl-errors=true capture.js"], shell=True)
 
 if __name__ == '__main__':
     main()
