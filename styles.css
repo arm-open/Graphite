@@ -144,3 +144,12 @@ h4 {
     font-size: 13px;
 }
 
+@font-face {
+    font-family: Antro_Vectra;
+    src: url('./fonts/Antro_Vectra.otf');
+}
+
+#user_signature {
+    font-family: Antro_Vectra;
+    font-size: 28px;
+}

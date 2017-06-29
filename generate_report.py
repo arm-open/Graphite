@@ -9,16 +9,11 @@ import argparse
 import os
 import sys
 import subprocess
-
-from apiclient.discovery import build
-import httplib2
-from oauth2client import client
-from oauth2client import file
-from oauth2client import tools
-
-from jinja2 import Environment, FileSystemLoader
-
 import click
+import httplib2
+from apiclient.discovery import build
+from oauth2client import client, file, tools
+from jinja2 import Environment, FileSystemLoader
 
 # GLOBALS
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -173,8 +168,8 @@ def return_response(response):
 
 
 @click.command()
-@click.option('--file', default='analytics.pdf', help='PDF File Name')
-def main(file):
+@click.option('--name', default='', help='Your/Company/Etc name for the signature')
+def main(name):
         # ERROR CHECKING & SETTING UP OUR GLOBAL VARIABLES
     if "CLIENT_SECRETS_PATH" in os.environ:
         global CLIENT_SECRETS_PATH
@@ -246,16 +241,17 @@ def main(file):
     """
     j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
     rendered_output = j2_env.get_template('render.html').render(
-        number_of_sessions=sessionNum
-        , number_of_users=userNum
-        , number_of_pageViews=pageViews
-        , bounce_rate_percentage=bounceRate
-        , daily_sessions=sessionCount
-        , engagement_session_channels=sessionChannels
-        , engagement_pageview_channels=pageviewChannels
-        , device_types=deviceTypes
-        , session_duration=sessionDuration
-        , country_per_session=countryPerSession
+        number_of_sessions=sessionNum, 
+        number_of_users=userNum,
+        number_of_pageViews=pageViews,
+        bounce_rate_percentage=bounceRate,
+        daily_sessions=sessionCount,
+        engagement_session_channels=sessionChannels,
+        engagement_pageview_channels=pageviewChannels,
+        device_types=deviceTypes,
+        session_duration=sessionDuration,
+        country_per_session=countryPerSession,
+        signature_name = name
         )
     # Rendered file which will receive output written to it and then closed up
     renderedFile = open("rendered.html", "a")
