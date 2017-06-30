@@ -1,10 +1,10 @@
 <html>
 <head>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" type="text/css" href="../css/styles.css">
     <script src="http://code.jquery.com/jquery-2.2.0.min.js"></script>
     <script src="http://www.chartjs.org/dist/2.6.0/Chart.bundle.js"></script>
-    <script type="text/javascript" src="Chart.PieceLabel.js"></script>
+    <script type="text/javascript" src="../js/Chart.PieceLabel.js"></script>
     <script type="text/javascript" src="http://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
             google.charts.load('current', {'packages':['geochart']});
@@ -47,7 +47,7 @@
                 var priordate = new Date();
                 priordate = priordate.setDate(priordate.getDate() - 30);
                 priordate = new Date(priordate);
-                document.getElementById("dates").innerHTML = "<img src=\"Calendar-icon.png\" style=\"width:24;height:24;\"> " 
+                document.getElementById("dates").innerHTML = "<img src=\"../images/Calendar-icon.png\" style=\"width:24;height:24;\"> " 
                                                            + currentdate.toDateString().substring(3) + " - " + priordate.toDateString().substring(3);
             </script>
         </div>

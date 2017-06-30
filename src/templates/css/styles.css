@@ -146,7 +146,7 @@ h4 {
 
 @font-face {
     font-family: Antro_Vectra;
-    src: url('./fonts/Antro_Vectra.otf');
+    src: url('../fonts/Antro_Vectra.otf');
 }
 
 #user_signature {

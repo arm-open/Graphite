@@ -4,7 +4,6 @@ Takes user sessions off Google Analytics API and Puts a bar graph into a PDF Fil
 Uses Python3 Written by Arian Moslem
 ---------------------------------------------------------------------------------
 """
-
 import argparse
 import os
 import sys
@@ -185,6 +184,8 @@ def main(name):
         print("Please set the environment variable VIEW_ID, which is the View ID found in your account explorer. Refer to the github page for more information")
         sys.exit(1)
 
+    copysecrets = subprocess.run(["cp " + CLIENT_SECRETS_PATH + " client_secrets.json"], shell=True)
+    CLIENT_SECRETS_PATH = "client_secrets.json"
     """
     DATA TO BE PASSED INTO THE HTML DOCUMENT
     INITALIZING OUR ANALYTICS REPORTING
@@ -236,15 +237,15 @@ def main(name):
     countryperSession = countryPerSession[::-1]
 
     """
-    LOADED UP JINJA ENVIRONMENT, WILL BE PASSING DATA INTO IT 
+    LOADED UP JINJA ENVIRONMENT, WILL BE PASSING DATA INTO IT
     WILL RENDER A rendered.html DOCUMENT WITH ALL THE DATA PASSED INTO IT
     """
     j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
-    rendered_output = j2_env.get_template('render.html').render(
-        number_of_sessions=sessionNum, 
+    rendered_output = j2_env.get_template('templates/html/render.html').render(
+        number_of_sessions=sessionNum,
         number_of_users=userNum,
         number_of_pageViews=pageViews,
-        bounce_rate_percentage=bounceRate,
+        bounce_rate_percentage=bounceRate[0:4],
         daily_sessions=sessionCount,
         engagement_session_channels=sessionChannels,
         engagement_pageview_channels=pageviewChannels,
@@ -254,7 +255,8 @@ def main(name):
         signature_name = name
         )
     # Rendered file which will receive output written to it and then closed up
-    renderedFile = open("rendered.html", "a")
+    cleanFile = open('templates/html/rendered.html', "w").close()
+    renderedFile = open("templates/html/rendered.html", "a")
     renderedFile.write(rendered_output)
     renderedFile.close()
     #Running phantomjs then exitting

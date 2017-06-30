@@ -6,7 +6,7 @@ page.paperSize = {
     width: '826px',
     height: '1122px'
 };
-page.open('rendered.html', function(status) {
+page.open('templates/html/rendered.html', function(status) {
     window.setTimeout(function() {
         document.body.style.width = "826px";
         document.body.style.height = "1122px";
