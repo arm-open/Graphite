@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 ---------------------------------------------------------------------------------
 Takes user sessions off Google Analytics API and Puts a bar graph into a PDF File
