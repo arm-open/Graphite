@@ -1,0 +1,155 @@
+.padding-0{
+    padding-right:0;
+    padding-left:0;
+}
+.device-dist{
+    padding-right:20px;
+}
+body {
+    border-style: solid;
+    border-width: 20px;
+    border-color: white;
+    width: 826px;
+    height: 1122px;
+}
+
+#first-content {
+    background-color: #f3f3f3;
+}
+
+#question-text {
+    padding-top: 20px;
+    padding-left: 25px;
+    font-weight: bold;
+    color: #013b20;
+}
+
+#under-text {
+    padding-left: 25px;
+    font-style: italic;
+    color: gray;
+    font-size: 12; 
+}
+
+.row-bottom-margin { 
+    margin-bottom: 0 !important;
+}
+
+.row-upper-margin {
+    margin-top: 0 !important;
+}
+
+.padding-fix-left {
+    margin-left: 20px !important;
+}
+.padding-fix-right {
+    margin-right: 20px !important;
+}
+
+table {
+    max-width: 90% !important;
+    font-size: 13;
+    margin-left: 20px;
+}
+table tr td:first-child::before {
+    min-width: 1em;
+    margin-right: 0.5em;
+}
+
+thead {
+    background-color: #B2EBF2;
+}
+
+#table-body {
+    font-weight: normal !important;
+}
+#head-upper {
+    color: #4d9093;
+    font-size: 14;
+}
+
+#head-lower {
+    color: #006063;
+    font-size: 28;
+}
+
+#quickstat-bg {
+    background: rgba(255,255,255,1);
+    background: -moz-linear-gradient(left, rgba(255,255,255,1) 0%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, rgba(255,255,255,1)), color-stop(47%, rgba(246,246,246,1)), color-stop(100%, rgba(237,237,237,1)));
+    background: -webkit-linear-gradient(left, rgba(255,255,255,1) 0%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 100%);
+    background: -o-linear-gradient(left, rgba(255,255,255,1) 0%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 100%);
+    background: -ms-linear-gradient(left, rgba(255,255,255,1) 0%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 100%);
+    background: linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ededed', GradientType=1 );
+}
+
+#world-chart {
+    background: rgba(255,255,255,0.83);
+    background: -moz-linear-gradient(left, rgba(255,255,255,0.83) 47%, rgba(255,255,255,0.83) 69%, rgba(245,245,245,0.83) 87%, rgba(237,237,237,1) 100%);
+    background: -webkit-gradient(left top, right top, color-stop(47%, rgba(255,255,255,0.83)), color-stop(69%, rgba(255,255,255,0.83)), color-stop(87%, rgba(245,245,245,0.83)), color-stop(100%, rgba(237,237,237,1)));
+    background: -webkit-linear-gradient(left, rgba(255,255,255,0.83) 47%, rgba(255,255,255,0.83) 69%, rgba(245,245,245,0.83) 87%, rgba(237,237,237,1) 100%);
+    background: -o-linear-gradient(left, rgba(255,255,255,0.83) 47%, rgba(255,255,255,0.83) 69%, rgba(245,245,245,0.83) 87%, rgba(237,237,237,1) 100%);
+    background: -ms-linear-gradient(left, rgba(255,255,255,0.83) 47%, rgba(255,255,255,0.83) 69%, rgba(245,245,245,0.83) 87%, rgba(237,237,237,1) 100%);
+    background: linear-gradient(to right, rgba(255,255,255,0.83) 47%, rgba(255,255,255,0.83) 69%, rgba(245,245,245,0.83) 87%, rgba(237,237,237,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ededed', GradientType=1 );
+}
+
+/*
+ * Row with equal height columns
+ * --------------------------------------------------
+ */
+.row-eq-height {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display:         flex;
+}
+
+/*
+ * Styles copied from the Grid example to make grid rows & columns visible.
+ */
+.container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+h4 {
+  margin-top: 25px;
+}
+.row {
+  margin-bottom: 20px;
+}
+.row .row {
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+#white-text{
+    margin-top: 13px;
+    color: white;
+    font-size: 12px;
+}
+#blue-bg {
+    background-color: #01BCD4;
+    height: 45px;
+}
+
+#first-header {
+    background-color: #EEEEEE;
+    height: 22px;
+}
+
+#dates {
+    font-size: 13px;
+}
+
+@font-face {
+    font-family: Antro_Vectra;
+    src: url('../fonts/Antro_Vectra.otf');
+}
+
+#user_signature {
+    font-family: Antro_Vectra;
+    font-size: 28px;
+}

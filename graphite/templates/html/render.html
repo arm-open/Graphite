@@ -1,0 +1,380 @@
+<html>
+<head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link rel="stylesheet" type="text/css" href="../css/styles.css">
+    <script src="http://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="http://www.chartjs.org/dist/2.6.0/Chart.bundle.js"></script>
+    <script type="text/javascript" src="../js/Chart.PieceLabel.js"></script>
+    <script type="text/javascript" src="http://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+            google.charts.load('current', {'packages':['geochart']});
+            google.charts.setOnLoadCallback(drawRegionsMap);
+            var geoData = [];
+            geoData.push(['Country', 'Sessions']);
+            {% for values in country_per_session %}
+                {% for key, value in values.items() %}
+                    geoData.push(['{{key}}', {{value}}]);
+                {% endfor %}
+            {% endfor %}
+            console.log(geoData);
+            function drawRegionsMap() {
+                var data = google.visualization.arrayToDataTable(geoData);
+                var options = {
+                    colorAxis: {colors: ['rgb(255, 80, 80)', 'rgb(75, 192, 192)']},
+                    backgroundColor: { fill:'transparent' }
+                };
+                var geochart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+                geochart.draw(data, options);
+            }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER 1 -->
+        <div class="row" id="first-header">
+        </div>
+        <!-- HEADER 2 -->
+        <div class="row row-eq-height row-bottom-margin row-upper-margin">
+            <div class="col-xs-4">
+                {{signature_name}}
+            </div>
+            <div class="col-xs-4">
+            </div>
+            <div class="col-xs-4" id="dates">
+            </div>
+            <script>
+                var currentdate = new Date();
+                var priordate = new Date();
+                priordate = priordate.setDate(priordate.getDate() - 30);
+                priordate = new Date(priordate);
+                document.getElementById("dates").innerHTML = "<img src=\"../images/Calendar-icon.png\" style=\"width:24;height:24;\"> " 
+                                                           + currentdate.toDateString().substring(3) + " - " + priordate.toDateString().substring(3);
+            </script>
+        </div>
+        <!-- HEADER 3 -->
+        <div class="row row-eq-height row-bottom-margin row-upper-margin" id="blue-bg">
+            <div class="col-xs-3" id="white-text">
+                Marketing Website Summary
+            </div>
+            <div class="col-xs-3">
+            </div>
+            <div class="col-xs-3">
+            </div>
+            <div class="col-xs-3" id="white-text">
+                Data From Google Analytics
+            </div>
+        </div>
+        <!-- QUICK STATISTICS DATA -->
+        <div class="row row-eq-height row-bottom-margin row-upper-margin" id="quickstat-bg">
+            <div class="col-xs-3 padding-fix-left">
+                <div class="row row-bottom-margin" id="head-upper">
+                    Users
+                </div>
+                <div class="row row-upper-margin" id="head-lower">
+                    {{number_of_users}}
+                </div>
+            </div>
+            <div class="col-xs-3">
+                <div class="row row-bottom-margin" id="head-upper">
+                    Sessions
+                </div>
+                <div class="row row-upper-margin" id="head-lower">
+                    {{number_of_sessions}}
+                </div>
+            </div>
+            <div class="col-xs-3">
+                <div class="row row-bottom-margin" id="head-upper">
+                    Pageviews
+                </div>
+                <div class="row row-upper-margin" id="head-lower">
+                    {{number_of_pageViews}}
+                </div>
+            </div>
+            <div class="col-xs-3 padding-fix-right">
+                <div class="row row-bottom-margin" id="head-upper">
+                    Bounce Rate
+                </div>
+                <div class="row row-upper-margin" id="head-lower">
+                    {{bounce_rate_percentage}}%
+                </div>
+            </div>
+        </div>
+        <!-- OUR CHARTS DATA -->
+        <div class="row row-eq-height row-upper-margin">
+            <div class="col-xs-6" id="first-content">
+                <!-- SESSIONS LINE CHART-->
+                <div id="question-text">
+                    How are site sessions trending?
+                </div>
+                <div id="under-text">
+                    Current period (30 Days total)
+                </div>
+                <canvas id="sessions_line_chart" width="350" height="225"></canvas>
+                <script>
+                    var sessionLabels = [];
+                    var sessionData = [];
+                    var i = 0;
+                    {% for sessions in daily_sessions %}
+                        if(i != 0 && i % 5 == 0){
+                            sessionLabels.push(i.toString());
+                        } else {
+                            sessionLabels.push("");
+                        }
+                        sessionData.push({{sessions}});
+                        i++;
+                    {% endfor %}
+                    var data = {
+                        labels: sessionLabels,
+                        datasets : [{
+                            label: "Number of Sessions",
+                            data: sessionData,
+                            fill: false,
+                            borderColor: "rgb(75, 192, 192)",
+                            backgroundColor: "rgb(75, 192, 192)"
+                        }]
+                    };
+                    var options = {
+                        responsive: false,
+                        scales: {
+                            xAxes: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Number of Days'
+                                }, gridLines: {
+                                    display: false
+                                }
+                            }],
+                            yAxes: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Value'
+                                }, 
+                                gridLines: {
+                                    display: false
+                                }
+                            }]
+                        },
+                        elements: {
+                            point: {
+                                radius: 0
+                            }
+                        }
+                    };
+                    var config = {
+                        type: 'line',
+                        data: data,
+                        options: options
+                    };
+                    var ctx = document.getElementById("sessions_line_chart").getContext("2d");
+                    var myLineChart = new Chart(ctx, config);
+                </script>
+
+                <!-- CHANNEL ENGAGEMENT BAR CHART-->
+                <div id="question-text">
+                    Which channels are driving engagement?
+                </div>
+                <div id="under-text">
+                    goal: Engaged Users
+                </div>
+                <canvas id="channel_engagement" width="350" height="225"></canvas>
+                <script>
+                    var channelLabels = [];
+                    var channelPageviews = [];
+                    var channelSessions = [];
+                    {% for values in engagement_session_channels %}
+                        {% for key, value in values.items() %}
+                            channelLabels.push("{{key}}");
+                            channelSessions.push({{value}});
+                        {% endfor %}
+                    {% endfor %}
+                    {% for values2 in engagement_pageview_channels %}
+                        {% for key, value in values2.items() %}
+                            channelPageviews.push({{value}});
+                        {% endfor %}
+                    {% endfor %}
+                    var data = {
+                        labels: channelLabels,
+                        datasets: [
+                            {
+                                label: 'PageViews',
+                                borderColor: "rgb(255, 80, 80)",
+                                backgroundColor: "rgb(255, 80, 80)",
+                                data: channelPageviews
+                            },
+                            {
+                                label: 'Sessions',
+                                borderColor: "rgb(75, 192, 192)",
+                                backgroundColor: "rgb(75, 192, 192)",
+                                data: channelSessions
+                            }],
+                    };
+                    var options = {
+                        responsive: false,
+                        scales: {
+                            xAxes: [{
+                                display: true,
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }],
+                            yAxes: [{
+                                gridLines: {
+                                    display: false
+                                }
+                            }]
+                        }
+                    };
+                    var config = {
+                        type: 'horizontalBar',
+                        data: data,
+                        options: options
+                    };
+                    var ctx = document.getElementById("channel_engagement").getContext("2d");
+                    var myBarChart = new Chart(ctx, config);
+                </script>
+                <div class="row" id="doughnutBar">
+                <!-- DEVICE TYPE DISTRIBUTION & AVG. SESSION LENGTH -->
+                    <div id="question-text">
+                        Device Type Distribution & Avg. Session Length
+                    </div>
+                    <div id="under-text">
+                        Showing the number of users over the past 30 days
+                    </div>
+                    <div class="col-xs-6">
+                        <!--DEVICE TYPE DISTRIBUTION DONUT CHART-->
+                        <canvas id="device_distribution" width="175" height="225"></canvas>
+                        <script>
+                            var deviceLabels = [];
+                            var deviceValues = [];
+                            {% for values in device_types %}
+                                {% for key, value in values.items() %}
+                                    deviceLabels.push("{{key}}");
+                                    deviceValues.push({{value}});
+                                {% endfor %}
+                            {% endfor %}
+                            var data = {
+                                labels: deviceLabels,
+                                datasets: [{
+                                    data: deviceValues,
+                                    backgroundColor: [
+                                        "rgb(75, 192, 192)",
+                                        "rgb(255, 80, 80)",
+                                        "rgb(82, 255, 82)",
+                                        "rgb(255, 82, 255)",
+                                        "rgb(82, 82, 255)",
+                                        "rgb(255, 255, 82)"
+                                    ],
+                                    borderWidth: 0
+                                }]
+                            };
+                            var options = {
+                                responsive: false,
+                                cutoutPercentage: 70,
+                                pieceLabel: {
+                                    mode: 'Value'
+                                }
+                            };
+                            var config = {
+                                type: 'doughnut',
+                                data: data,
+                                options: options
+                            };
+                            var ctx = document.getElementById("device_distribution").getContext("2d");
+                            var myPieChart = new Chart(ctx, config);
+                        </script>
+                        </div>
+                        <div class="col-xs-6">
+
+                        <!-- AVG SESSION LENGTH HORIZONTAL BAR CHAT -->
+                        <canvas id="session_length" width="175" height="225"></canvas>
+                        <script>
+                            var lengthLabels = [];
+                            var lengthValues = [];
+                            {% for values in session_duration %}
+                                {% for key, value in values.items() %}
+                                    lengthLabels.push("{{key}}");
+                                    lengthValues.push({{value}});
+                                {% endfor %}
+                            {% endfor %}
+                            var data = {
+                                labels: lengthLabels,
+                                datasets: [
+                                    {
+                                        label: "Avg. Session Length",
+                                        data: lengthValues,
+                                        backgroundColor: "rgb(75, 192, 192)",
+                                    }
+                                ]
+                            };
+                            var options = {
+                                legend: {
+                                    display: true
+                                },
+                                responsive: false,
+                                scales: {
+                                    xAxes: [{
+                                        display: true,
+                                        ticks: {
+                                            beginAtZero: true
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        gridLines: {
+                                            display: false
+                                        }
+                                    }]
+                                }
+                            };
+                            var config = {
+                                type: 'horizontalBar',
+                                data: data,
+                                options: options
+                            };
+                            var ctx = document.getElementById("session_length").getContext("2d");
+                            var mySessionChart = new Chart(ctx, config);
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6" id="world-chart">
+                <!-- GEOLOCATION MAP OF USER SESSIONS AND TABLE-->
+                <div id="question-text">
+Country	Sessions
+
+                    What are the top countries by sessions?
+                </div>
+                <div id="under-text">
+                    Sessions over the last 30 days
+                </div>
+                <div id="regions_div" style="width: 340px; height: 300px;"></div>
+                <div class="row">
+                    <table class="table table-condensed table-striped">
+                        <thead>
+                            <tr>
+                                <th> </th>
+                                <th>Country</th>
+                                <th>Sessions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for values in country_per_session | reverse %}
+                                {% set s = loop.index %}
+                                {% for key, value in values.items() %}
+                            <tr>
+                                <th> {{s}}. </th>
+                                <td>{{key}}</td>
+                                <td>{{value}}</td>
+                            </tr>
+                                {% endfor %}
+                            {% endfor %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
