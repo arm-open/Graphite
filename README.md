@@ -1,18 +1,16 @@
 # Graphite
 A simple tool for scraping google analytics and generating a meaningful report from our usage data.
 
+![ScreenShot](http://i.imgur.com/eXdtzwQ.png)
+
 <!-- toc -->
 
-- [Screenshot of example output](#screenshot-of-example-output)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
   * [Signature / Name](#signature--name)
 
 <!-- tocstop -->
-
-# Screenshot of example output
-![ScreenShot](http://i.imgur.com/eXdtzwQ.png)
 
 # Requirements
 
