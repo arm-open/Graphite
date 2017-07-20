@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""
----------------------------------------------------------------------------------
-Takes user sessions off Google Analytics API and Puts a bar graph into a PDF File
-Uses Python3 Written by Arian Moslem
----------------------------------------------------------------------------------
-"""
+"""Takes user sessions off Google Analytics API and Puts a bar graph into a PNG File"""
+__author__ = "Arian Moslem"
+__copyright__ = "Copyright 2016, ARM OPEN"
+__credits__ = ["David Awad"]
+__license__ = "GPL"
+__version__ = "0.1.2.16"
+__maintainer__ = "Arian Moslem"
+__email__ = "amoslem678@gmail.com"
+__status__ = "Production"
+
+
 import argparse
 import os
 import sys

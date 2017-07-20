@@ -1,6 +1,19 @@
 # Graphite
 A simple tool for scraping google analytics and generating a meaningful report from our usage data.
 
+<!-- toc -->
+
+- [Screenshot of example output](#screenshot-of-example-output)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+  * [Signature / Name](#signature--name)
+
+<!-- tocstop -->
+
+# Screenshot of example output
+![ScreenShot](http://i.imgur.com/eXdtzwQ.png)
+
 # Requirements
 
 ```
@@ -11,15 +24,15 @@ A simple tool for scraping google analytics and generating a meaningful report f
 ```
 # Installation
 
+Make sure you have phantomjs installed (you can use npm or yarn)
+
+`npm install -g phantomjs-prebuilt`
+
 It's best to have this installed in your python user directory with the `--user` option on pip. 
 
 `pip install --user graphite-analytics`
 
-You an also run `sudo` for installation depending on your os. If you decide to run sudo for installation, check the usage section for the sudo section.
-
-`sudo pip install graphite-analytics`
-
-in your `~/.bashrc` ,`~/.zshrc`, or whichever source file you're using for your terminal, add these environment variables
+In order for this script to work properly, you must export the following environment variables
 ```
 VIEW_ID
 CLIENT_SECRETS_PATH
@@ -29,9 +42,15 @@ To get these variables:
 ```
 **NOTE; When prompted click Furnish a new private key and for the Key type select JSON, and save the generated key as client_secrets.json; you will need it later**
 1. Go to https://console.developers.google.com/permissions/serviceaccounts
-2. Click create service account
+2. Click create service accoun``t
+```
+![ScreenShot](https://i.imgur.com/NTYgQ7o.png)
+```
 3. In the Create service account window, type a name for the service account, and select Furnish a new private key. Then click Create.
 4. Your new public/private key pair is generated and downloaded to your machine; it serves as the only copy of this key. You are responsible for storing it securely.
+```
+![ScreenShot](https://i.imgur.com/zVPRCcH.png)
+```
 5. Make sure you have your client_secrets.json file and set its path in the CLIENT_SECRETS_PATH environment variable
 6. For your VIEW_ID you can find it under https://ga-dev-tools.appspot.com/account-explorer/, so set the VIEW_ID environmental variable with the #.
 ```
@@ -54,7 +73,4 @@ And an analytics.png file will be generated similar to the screenshot of the exa
 
 ## Signature / Name
 
-If you want a signature / your name added, I have added an `--name` option. 
-
-# Screenshot of example output
-![ScreenShot](http://i.imgur.com/eXdtzwQ.png)
+If you want a signature / your name added, I have added an `--name` option.
