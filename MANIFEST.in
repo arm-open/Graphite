@@ -1,0 +1,5 @@
+include graphite.3
+include README.md
+include LISENCE
+recursive-include graphite *
+include graphite/*.js

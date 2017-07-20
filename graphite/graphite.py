@@ -169,20 +169,29 @@ def return_response(response):
 
 @click.command()
 @click.option('--name', default='', help='Your/Company/Etc name for the signature')
-def main(name):
-        # ERROR CHECKING & SETTING UP OUR GLOBAL VARIABLES
+@click.option('--secretpath', default='', help='Client Secrets Path')
+@click.option('--viewid', default='', help='View Id')
+def main(name, secretpath, viewid):
+    #THE PATH OF THE FILE DIRECTORY
+    dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
+    cwd = os.getcwd()
+    # ERROR CHECKING & SETTING UP OUR GLOBAL VARIABLES
+    global CLIENT_SECRETS_PATH
     if "CLIENT_SECRETS_PATH" in os.environ:
-        global CLIENT_SECRETS_PATH
         CLIENT_SECRETS_PATH = os.environ["CLIENT_SECRETS_PATH"]
+    elif secretpath:
+        CLIENT_SECRETS_PATH = secretpath
     else:
-        print("Please set the environment variable CLIENT_SECRETS_PATH, which is the path and including the client secrets .json file")
+        print("Please set the environment variable CLIENT_SECRETS_PATH, which is the path and including the client secrets .json file or use the \"--secretpath <path>\" option to list it's path")
         sys.exit(1)
 
+    global VIEW_ID
     if "VIEW_ID" in os.environ:
-        global VIEW_ID
         VIEW_ID = os.environ["VIEW_ID"]
+    elif viewid:
+        VIEW_ID = viewid
     else:
-        print("Please set the environment variable VIEW_ID, which is the View ID found in your account explorer. Refer to the github page for more information")
+        print("Please set the environment variable VIEW_ID or use the \"--viewid <id>\" option to list it's VIEW ID")
         sys.exit(1)
 
     copysecrets = subprocess.run(["cp " + CLIENT_SECRETS_PATH + " client_secrets.json"], shell=True)
@@ -256,12 +265,18 @@ def main(name):
         signature_name = name
         )
     # Rendered file which will receive output written to it and then closed up
-    cleanFile = open('templates/html/rendered.html', "w").close()
-    renderedFile = open("templates/html/rendered.html", "a")
+    try:
+        os.remove(dir_path + 'templates/html/rendered.html')
+    except OSError:
+        pass
+
+    renderedFile = open(dir_path + "templates/html/rendered.html", "a")
     renderedFile.write(rendered_output)
     renderedFile.close()
     #Running phantomjs then exitting
-    phantomout = subprocess.run(["phantomjs --ignore-ssl-errors=true capture.js"], shell=True)
+    os.chdir(dir_path)
+    phantomout = subprocess.run(["phantomjs --ignore-ssl-errors=true capture.js"], shell=True, cwd=dir_path)
+    subprocess.run(["mv analytics.png " + cwd], shell=True)
 
 if __name__ == '__main__':
     main()
