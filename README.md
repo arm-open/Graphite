@@ -1,7 +1,7 @@
 # Graphite [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) ![Version](https://img.shields.io/badge/version-v.0.1.17-blue.svg)
 A simple tool for scraping google analytics and generating a meaningful report from our usage data.
 
-![ScreenShot](http://i.imgur.com/eXdtzwQ.png)
+![ScreenShot](http://i.imgur.com/fpIWBUc.png)
 
 <!-- toc -->
 
@@ -70,5 +70,6 @@ If you have installed this with the `--user` option on pip, you can just run
 And an analytics.png file will be generated similar to the screenshot of the example output.
 
 ## Signature / Name
+
 
 If you want a signature / your name added, I have added an `--name` option.
