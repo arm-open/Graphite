@@ -1,7 +1,7 @@
 # Graphite [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) ![Version](https://img.shields.io/badge/version-v.0.1.17-blue.svg)
 A simple tool for scraping google analytics and generating a meaningful report from our usage data.
 
-![ScreenShot](http://i.imgur.com/fpIWBUc.png)
+![ScreenShot](http://i.imgur.com/yIrDmEc.png)
 
 <!-- toc -->
 
